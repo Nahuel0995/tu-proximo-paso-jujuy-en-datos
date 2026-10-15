@@ -1,0 +1,49 @@
+name: Actualizar datos
+
+# Descarga las bases subidas desde el panel de administración (Supabase Storage),
+# corre el ETL y hace commit de los JSON. El push dispara el deploy a Pages.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  etl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install openpyxl pypdf
+
+      - name: Descargar fuentes desde Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          for f in \
+            PBG/PBG-2004-2024-actualizacion-agosto-2025.xlsx \
+            OEDE/provinciales_serie_empleo_trimestral_2dig_7.xlsx \
+            EIL/EIL_2407_2.xlsx EIL/EIL_2407_6.xlsx EIL/EIL_2407_8.xlsx \
+            MIP/Informe-MIP-y-Empleo-Jujuy-base-2015.pdf; do
+            mkdir -p "TU_PROXIMO_PASO_FUENTES/$(dirname $f)"
+            # Si el archivo no fue subido, se conserva el del repositorio
+            curl -sf -H "Authorization: Bearer $SUPABASE_SERVICE_KEY" \
+              "$SUPABASE_URL/storage/v1/object/fuentes/$f" \
+              -o "TU_PROXIMO_PASO_FUENTES/$f" || echo "Sin cambios: $f"
+          done
+
+      - name: Ejecutar ETL
+        run: python scripts/etl_extract.py
+
+      - name: Commit de datos
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add data TU_PROXIMO_PASO_FUENTES
+          git diff --cached --quiet || (git commit -m "Actualizar datos desde panel admin" && git push)

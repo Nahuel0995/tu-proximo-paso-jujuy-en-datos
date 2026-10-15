@@ -1,7 +1,13 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim().replace(/^["']|["']$/g, '');
-const anonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim().replace(/^["']|["']$/g, '');
+/** Limpia espacios, comillas y un posible prefijo NOMBRE= pegado por error en el valor. */
+const limpiar = (v: unknown): string | undefined =>
+  typeof v === 'string'
+    ? v.trim().replace(/^[A-Z_]+=/, '').trim().replace(/^["']|["']$/g, '') || undefined
+    : undefined;
+
+const url = limpiar(import.meta.env.VITE_SUPABASE_URL);
+const anonKey = limpiar(import.meta.env.VITE_SUPABASE_ANON_KEY);
 
 function crearCliente(): SupabaseClient | null {
   if (!url || !anonKey) return null;

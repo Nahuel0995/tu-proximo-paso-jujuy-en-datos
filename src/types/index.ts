@@ -231,7 +231,7 @@ export interface MetadataFuente {
   cobertura?: string;
   universo?: string;
   periodicidad: string;
-  unidades: string[];
+  unidades?: string[];
   condicion_especial: string;
 }
 

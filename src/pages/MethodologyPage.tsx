@@ -91,10 +91,12 @@ export const MethodologyPage: React.FC<MethodologyPageProps> = ({
                       <span>{f.universo} ({f.cobertura || 'Provincial'})</span>
                     </div>
                   )}
-                  <div>
-                    <span className="font-semibold text-slate-700">Unidad de medida: </span>
-                    <span>{f.unidades.join(' • ')}</span>
-                  </div>
+                  {f.unidades && f.unidades.length > 0 && (
+                    <div>
+                      <span className="font-semibold text-slate-700">Unidad de medida: </span>
+                      <span>{f.unidades.join(' • ')}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

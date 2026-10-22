@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { LogOut, Upload, BarChart3, Lock, CheckCircle2, AlertCircle } from 'lucide-react';
+import areasJson from '../../data/areas.json';
+import { StatsDashboard } from '../components/admin/StatsDashboard';
+import { toFrequency } from '../components/admin/chartTypes';
 
 interface Evento {
   tipo: string;
@@ -18,32 +21,9 @@ const ARCHIVOS_FUENTE = [
   'MIP/Informe-MIP-y-Empleo-Jujuy-base-2015.pdf',
 ];
 
-const Barras: React.FC<{ titulo: string; datos: [string, number][] }> = ({ titulo, datos }) => {
-  const max = Math.max(1, ...datos.map(([, n]) => n));
-  return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-      <h3 className="font-bold text-slate-900 text-sm">{titulo}</h3>
-      {datos.length === 0 && <p className="text-xs text-slate-500">Sin datos todavía.</p>}
-      {datos.map(([k, n]) => (
-        <div key={k} className="text-xs">
-          <div className="flex justify-between mb-1">
-            <span className="text-slate-700">{k}</span>
-            <span className="font-bold">{n}</span>
-          </div>
-          <div className="h-2 bg-slate-100 rounded-full">
-            <div className="h-2 bg-brand-600 rounded-full" style={{ width: `${(n / max) * 100}%` }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const contar = (xs: string[]): [string, number][] => {
-  const m = new Map<string, number>();
-  xs.forEach((x) => m.set(x, (m.get(x) || 0) + 1));
-  return [...m.entries()].sort((a, b) => b[1] - a[1]);
-};
+const AREA_LABELS: Record<string, string> = Object.fromEntries(
+  (areasJson as { area_id: string; nombre: string }[]).map((a) => [a.area_id, a.nombre])
+);
 
 export const AdminPage: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -118,11 +98,15 @@ export const AdminPage: React.FC = () => {
 
   const visitas = eventos.filter((e) => e.tipo === 'visita').length;
   const wizards = eventos.filter((e) => e.tipo === 'wizard_completo');
-  const areasElegidas = contar(wizards.flatMap((e) => e.payload.areas || []));
-  const areasVistas = contar(eventos.filter((e) => e.tipo === 'area_vista').map((e) => e.payload.area_id));
-  const motivos = contar(wizards.map((e) => e.payload.motivo || 'sin dato'));
-  const tareas = contar(wizards.map((e) => e.payload.tipoTarea || 'sin dato'));
-  const edades = contar(wizards.map((e) => e.payload.rangoEdad || 'sin dato'));
+  const dashboardData = {
+    areasElegidas: toFrequency(wizards.flatMap((e) => e.payload.areas || [])),
+    areasConsultadas: toFrequency(
+      eventos.filter((e) => e.tipo === 'area_vista').map((e) => e.payload.area_id)
+    ),
+    motivos: toFrequency(wizards.map((e) => e.payload.motivo || 'sin dato')),
+    tareas: toFrequency(wizards.map((e) => e.payload.tipoTarea || 'sin dato')),
+    edades: toFrequency(wizards.map((e) => e.payload.rangoEdad || 'sin dato')),
+  };
 
   const descargarCsv = () => {
     const filas = ['fecha,tipo,payload', ...eventos.map((e) => `${e.created_at},${e.tipo},"${JSON.stringify(e.payload).replace(/"/g, '""')}"`)];
@@ -151,13 +135,7 @@ export const AdminPage: React.FC = () => {
         <div className="bg-white border rounded-2xl p-5"><div className="text-3xl font-black">{eventos.filter((e) => e.tipo === 'area_vista').length}</div><div className="text-xs text-slate-500">Fichas de área vistas</div></div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Barras titulo="Áreas elegidas en el asistente" datos={areasElegidas} />
-        <Barras titulo="Áreas más consultadas (fichas)" datos={areasVistas} />
-        <Barras titulo="Motivo de exploración" datos={motivos} />
-        <Barras titulo="Tipo de tarea de interés" datos={tareas} />
-        <Barras titulo="Rango de edad" datos={edades} />
-      </div>
+      <StatsDashboard data={dashboardData} areaLabels={AREA_LABELS} />
 
       <section className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
         <h2 className="font-black text-slate-900 flex items-center gap-2"><Upload className="w-5 h-5" /> Actualizar bases de datos</h2>

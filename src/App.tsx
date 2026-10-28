@@ -25,6 +25,9 @@ const EilTransversalPage = React.lazy(() =>
 const MethodologyPage = React.lazy(() =>
   import('./pages/MethodologyPage').then((m) => ({ default: m.MethodologyPage }))
 );
+const AreaComparator = React.lazy(() =>
+  import('./components/AreaComparator').then((m) => ({ default: m.AreaComparator }))
+);
 const AdminPage = React.lazy(() =>
   import('./pages/AdminPage').then((m) => ({ default: m.AdminPage }))
 );
@@ -43,7 +46,7 @@ const LoadingSkeleton: React.FC = () => (
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<
-    'inicio' | 'asistente' | 'resultado' | 'areas' | 'detalle' | 'transversal' | 'metodologia' | 'admin'
+    'inicio' | 'asistente' | 'resultado' | 'areas' | 'detalle' | 'transversal' | 'metodologia' | 'comparador' | 'admin'
   >(window.location.hash === '#admin' ? 'admin' : 'inicio');
 
   useEffect(() => {
@@ -161,6 +164,8 @@ export const App: React.FC = () => {
               areas={areas}
             />
           )}
+          {currentView === 'comparador' && <AreaComparator areas={areas} />}
+
           {currentView === 'admin' && <AdminPage />}
         </Suspense>
       </main>

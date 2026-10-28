@@ -17,6 +17,8 @@ import {
 import { PbgGauge } from './charts/PbgGauge';
 import { SipaPuestos } from './charts/SipaPuestos';
 import { MipStackedBar } from './charts/MipStackedBar';
+import { TimeEvolutionChart } from './charts/TimeEvolutionChart';
+import { getPbgSeries, getEmpleoSeries } from '../utils/areaMetrics';
 
 import defaultPbg from '../../data/pbg.json';
 import defaultOede from '../../data/empleo_oede.json';
@@ -552,6 +554,20 @@ export const HumanDataCards: React.FC<HumanDataCardsProps> = ({
                     </span>
                   )}
                 </p>
+              </div>
+
+              {/* Gráfico interactivo de evolución temporal (series reales) */}
+
+              <div className="pt-3">
+
+                <TimeEvolutionChart
+
+                  areaLabel={area.nombre}
+
+                  data={{ pbg: getPbgSeries(area.area_id, pbgData), empleo: getEmpleoSeries(area.area_id, oedeData) }}
+
+                />
+
               </div>
 
               {/* Hitos comparativos temporales */}

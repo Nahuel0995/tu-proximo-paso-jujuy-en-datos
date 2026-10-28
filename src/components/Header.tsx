@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { BarChart3, BookOpen, Layers, Menu, X, Info } from 'lucide-react';
+import { BarChart3, BookOpen, Layers, Menu, X, Info, ArrowLeftRight } from 'lucide-react';
+import { SearchBar } from './SearchBar';
+import areasJson from '../../data/areas.json';
 
 interface HeaderProps {
   currentView: string;
@@ -12,6 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
   const navItems = [
     { id: 'inicio', label: 'Inicio', icon: BarChart3 },
     { id: 'areas', label: '12 Áreas de Jujuy', icon: Layers },
+    { id: 'comparador', label: 'Comparar áreas', icon: ArrowLeftRight },
     { id: 'transversal', label: 'EIL Gran Jujuy (Transversal)', icon: Info },
     { id: 'metodologia', label: 'Fuentes y Metodología', icon: BookOpen },
   ];
@@ -69,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
             </button>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1.5" aria-label="Navegación principal">
+            <nav className="hidden lg:flex items-center gap-1.5" aria-label="Navegación principal">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = currentView === item.id;
@@ -92,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
             </nav>
 
             {/* Botón Móvil */}
-            <div className="flex md:hidden">
+            <div className="flex lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="p-2.5 rounded-xl text-slate-700 hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -105,9 +108,25 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
           </div>
         </div>
 
+        {/* Buscador global */}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3">
+
+          <SearchBar
+
+            areas={areasJson as { area_id: string; nombre: string; descripcion: string }[]}
+
+            onSelectArea={(id) => onNavigate('detalle', id)}
+
+            className="max-w-md"
+
+          />
+
+        </div>
+
         {/* Drawer Móvil */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1.5 shadow-lg animate-in slide-in-from-top-2 duration-150">
+          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1.5 shadow-lg animate-in slide-in-from-top-2 duration-150">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id;

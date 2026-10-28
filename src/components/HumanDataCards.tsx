@@ -14,6 +14,10 @@ import {
   Info
 } from 'lucide-react';
 
+import { PbgGauge } from './charts/PbgGauge';
+import { SipaPuestos } from './charts/SipaPuestos';
+import { MipStackedBar } from './charts/MipStackedBar';
+
 import defaultPbg from '../../data/pbg.json';
 import defaultOede from '../../data/empleo_oede.json';
 import defaultEil from '../../data/eil.json';
@@ -72,6 +76,21 @@ export const HumanDataCards: React.FC<HumanDataCardsProps> = ({
     return acc + (r.puestos_trabajo || 0);
   }, 0);
   const hasOedeSecret = latestOedeLetters.some((r) => r.estado_dato === 'SIN_DATO_SECRETO_ESTADISTICO');
+
+  // Serie trimestral REAL de puestos (suma de ramas letra) para el sparkline
+  const sipaSerie = oedePeriods
+    .map((p) => {
+      const recs = oedeLetterBranches.filter((r) => r.periodo === p);
+      const valid = recs.filter((r) => typeof r.puestos_trabajo === 'number');
+      return {
+        periodo: String(p),
+        puestos: valid.reduce((acc, r) => acc + (r.puestos_trabajo || 0), 0),
+        hasData: valid.length > 0,
+      };
+    })
+    .filter((s) => s.hasData)
+    .slice(-12)
+    .map(({ periodo, puestos }) => ({ periodo, puestos }));
 
   // 3. DATOS MIP
   const mipSectors = mipData.sectores.filter((s) => s.area_id === area.area_id);
@@ -135,21 +154,13 @@ export const HumanDataCards: React.FC<HumanDataCardsProps> = ({
                 </div>
               </div>
 
-              {/* Barra visual de peso relativo */}
+              {/* Gauge interactivo de peso relativo */}
               {pbgSharePctNum > 0 && (
-                <div className="space-y-1 pt-1 max-w-md">
-                  <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
-                    <div 
-                      className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
-                      style={{ width: `${Math.min(Math.max(pbgSharePctNum, 4), 100)}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                    <span>0%</span>
-                    <span>Peso provincial relativo</span>
-                    <span>100%</span>
-                  </div>
-                </div>
+                <PbgGauge
+                  areaValueMillones={totalValConstante / 1000}
+                  totalValueMillones={totalProvincialPbg / 1000}
+                  areaLabel={area.nombre}
+                />
               )}
 
               {/* Valor absoluto registrado legible y sin $$ */}
@@ -240,12 +251,14 @@ export const HumanDataCards: React.FC<HumanDataCardsProps> = ({
                 </div>
               ) : (
                 <div className="space-y-1 pt-1">
-                  <div className="flex items-baseline gap-2 flex-wrap">
-                    <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                      {totalPuestosOede > 0 ? formatNumber(totalPuestosOede, 0) : '—'}
-                    </h3>
-                    <span className="text-sm font-bold text-slate-600">puestos asalariados registrados</span>
-                  </div>
+                  {totalPuestosOede > 0 ? (
+                    <SipaPuestos total={totalPuestosOede} serie={sipaSerie} />
+                  ) : (
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">—</h3>
+                      <span className="text-sm font-bold text-slate-600">puestos asalariados registrados</span>
+                    </div>
+                  )}
 
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
                     Trabajadores registrados bajo relación de dependencia en empresas privadas declaradas ante el SIPA en la provincia ({latestOedePeriod}).
@@ -324,70 +337,14 @@ export const HumanDataCards: React.FC<HumanDataCardsProps> = ({
                 <span>Base 2015 · coeficientes estructurales · no representa empleo actual.</span>
               </div>
 
-              {/* Diagrama visual de flujo directo -> indirecto -> total */}
+              {/* Barra apilada: Total = Directo + Indirecto */}
               {primaryMipSector && (
                 <div className="pt-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {/* Directo */}
-                    <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-indigo-800 block">
-                          Empleo Directo
-                        </span>
-                        <div className="text-2xl font-black text-slate-900 mt-1">
-                          {primaryMipSector.empleo_directo_por_millon ? formatNumber(primaryMipSector.empleo_directo_por_millon, 2) : '—'}
-                        </div>
-                      </div>
-                      <div className="mt-2 space-y-0.5">
-                        <span className="text-[10px] text-slate-600 font-semibold block">
-                          Puestos directos por cada $1M de producción (VBP)
-                        </span>
-                        <span className="text-[9px] text-slate-400 font-medium block">
-                          Coeficiente directo · MIP
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Indirecto */}
-                    <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 flex flex-col justify-between">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-indigo-800 block">
-                          Empleo Indirecto
-                        </span>
-                        <div className="text-2xl font-black text-slate-900 mt-1">
-                          {primaryMipSector.empleo_indirecto_por_millon ? formatNumber(primaryMipSector.empleo_indirecto_por_millon, 2) : '—'}
-                        </div>
-                      </div>
-                      <div className="mt-2 space-y-0.5">
-                        <span className="text-[10px] text-slate-600 font-semibold block">
-                          Relación indirecta en proveedores por cada $1M de producción (VBP)
-                        </span>
-                        <span className="text-[9px] text-slate-400 font-medium block">
-                          Coeficiente indirecto · MIP
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Total */}
-                    <div className="p-4 rounded-2xl bg-indigo-100/70 border border-indigo-200 flex flex-col justify-between shadow-2xs">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-indigo-900 block">
-                          Empleo total relacionado
-                        </span>
-                        <div className="text-2xl font-black text-indigo-950 mt-1">
-                          {primaryMipSector.multiplicador_total_por_millon ? formatNumber(primaryMipSector.multiplicador_total_por_millon, 2) : '—'}
-                        </div>
-                      </div>
-                      <div className="mt-2 space-y-0.5">
-                        <span className="text-[10px] text-indigo-900 font-semibold block">
-                          {primaryMipSector.multiplicador_total_por_millon ? formatNumber(primaryMipSector.multiplicador_total_por_millon, 2) : '—'} puestos por cada $1M de producción
-                        </span>
-                        <span className="text-[9px] text-indigo-700/80 font-medium block">
-                          Coeficiente total de empleo · MIP
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  <MipStackedBar
+                    directo={primaryMipSector.empleo_directo_por_millon ?? 0}
+                    indirecto={primaryMipSector.empleo_indirecto_por_millon ?? 0}
+                    total={primaryMipSector.multiplicador_total_por_millon ?? ((primaryMipSector.empleo_directo_por_millon ?? 0) + (primaryMipSector.empleo_indirecto_por_millon ?? 0))}
+                  />
                 </div>
               )}
             </div>

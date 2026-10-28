@@ -164,7 +164,11 @@ export const App: React.FC = () => {
               areas={areas}
             />
           )}
-          {currentView === 'comparador' && <AreaComparator areas={areas} />}
+          {currentView === 'comparador' && (
+            <div className="py-6">
+              <AreaComparator areas={areas} onSelectArea={handleSelectArea} />
+            </div>
+          )}
 
           {currentView === 'admin' && <AdminPage />}
         </Suspense>

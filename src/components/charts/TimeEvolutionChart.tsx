@@ -24,16 +24,16 @@ const METRICS: Record<
   { label: string; color: string; unit: string; format: (n: number) => string; axis: (n: number) => string }
 > = {
   pbg: {
-    label: 'Evolución del PBG',
+    label: 'PBG · Producción',
     color: '#10b981',
-    unit: 'Millones de pesos de 2004 (precios constantes)',
+    unit: 'Millones de pesos (sin inflación, base 2004)',
     format: (n) => `$ ${n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} millones`,
     axis: (n) => n.toLocaleString('es-AR', { maximumFractionDigits: 0 }),
   },
   empleo: {
-    label: 'Evolución del Empleo',
+    label: 'OEDE · Empleo privado',
     color: '#2563eb',
-    unit: 'Puestos asalariados registrados (promedio anual)',
+    unit: 'Puestos privados registrados (promedio anual)',
     format: (n) => `${n.toLocaleString('es-AR')} puestos`,
     axis: (n) => n.toLocaleString('es-AR', { notation: 'compact' }),
   },

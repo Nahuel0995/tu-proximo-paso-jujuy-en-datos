@@ -294,7 +294,7 @@ export const ExplorationWizard: React.FC<ExplorationWizardProps> = ({
               ¿Qué tipo de tarea te interesa?
             </h2>
             <p className="text-sm text-slate-600 mt-2">
-              No hace falta que lo tengas claro. Esto solo nos ayuda a mostrar información de la Encuesta de Indicadores Laborales que pueda resultarte más útil.
+              Elegí qué tipo de actividad diaria te llama más la atención (sirve para resaltar ese grupo en EIL).
             </p>
           </div>
 
@@ -362,12 +362,9 @@ export const ExplorationWizard: React.FC<ExplorationWizardProps> = ({
             })}
           </div>
 
-          <div className="p-3 bg-slate-100 rounded-xl text-xs text-slate-600 flex items-start gap-2">
-            <HelpCircle className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-            <span>
-              <strong>Nota metodológica:</strong> Esta selección no evalúa compatibilidad ni determina qué deberías hacer. Solo personaliza qué datos de tareas requeridas ver primero cuando la fuente EIL esté disponible.
-            </span>
-          </div>
+          <p className="text-xs text-slate-500">
+            No es un test vocacional: solo resalta tu elección en las tarjetas de tareas.
+          </p>
 
           <div className="flex items-center justify-between pt-6 border-t border-slate-200">
             <button
@@ -402,7 +399,7 @@ export const ExplorationWizard: React.FC<ExplorationWizardProps> = ({
               ¿En qué rango de edad estás?
             </h2>
             <p className="text-sm text-slate-600 mt-2">
-              Es opcional y nos ayuda a conocer quiénes usan la aplicación durante la exposición académica. No se utiliza para recomendar ni asociar actividades.
+              Es anónimo y opcional, solo para estadísticas de uso de la página.
             </p>
           </div>
 

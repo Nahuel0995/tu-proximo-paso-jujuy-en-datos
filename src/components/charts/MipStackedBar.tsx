@@ -15,11 +15,11 @@ const COLORS = { directo: '#4f46e5', indirecto: '#a5b4fc' }; // indigo-600 / ind
 const EXPLICACIONES: Record<string, { titulo: string; texto: string }> = {
   directo: {
     titulo: 'Empleo directo',
-    texto: 'Puestos que genera la propia actividad por cada $1M de producción (VBP).',
+    texto: 'Puestos dentro de la propia actividad por cada $1M producido.',
   },
   indirecto: {
     titulo: 'Empleo indirecto',
-    texto: 'Puestos que se generan en los proveedores de insumos de la actividad por cada $1M de producción.',
+    texto: 'Puestos en empresas proveedoras que le venden insumos.',
   },
 };
 
@@ -96,9 +96,8 @@ export const MipStackedBar: React.FC<MipStackedBarProps> = ({
         </BarChart>
       </ResponsiveContainer>
 
-      <p className="text-[10px] text-slate-500 leading-relaxed">
-        Puestos por cada $1M de producción. Pasá el cursor sobre cada tramo para ver qué significa.
-        El total publicado por la MIP puede diferir levemente de la suma por redondeo.
+      <p className="text-[11px] text-slate-500">
+        Puestos por cada $1 millón producido (base 2015). Pasá el cursor sobre la barra para ver el detalle.
       </p>
     </div>
   );

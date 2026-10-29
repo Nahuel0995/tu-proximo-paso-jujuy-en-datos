@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, BookOpen, Layers, Menu, X, Info, ArrowLeftRight } from 'lucide-react';
+import { BarChart3, BookOpen, Layers, Menu, X, Briefcase, ArrowLeftRight } from 'lucide-react';
 import { SearchBar } from './SearchBar';
 import areasJson from '../../data/areas.json';
 
@@ -13,10 +13,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
 
   const navItems = [
     { id: 'inicio', label: 'Inicio', icon: BarChart3 },
-    { id: 'areas', label: '12 Áreas de Jujuy', icon: Layers },
-    { id: 'comparador', label: 'Comparar áreas', icon: ArrowLeftRight },
-    { id: 'transversal', label: 'EIL Gran Jujuy (Transversal)', icon: Info },
-    { id: 'metodologia', label: 'Fuentes y Metodología', icon: BookOpen },
+    { id: 'areas', label: '12 Áreas', icon: Layers },
+    { id: 'comparador', label: 'Comparar', icon: ArrowLeftRight },
+    { id: 'transversal', label: 'EIL · Tareas y búsquedas', icon: Briefcase },
+    { id: 'metodologia', label: 'Fuentes de datos', icon: BookOpen },
   ];
 
   const handleNav = (id: string) => {
@@ -26,7 +26,6 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
 
   return (
     <>
-      {/* Enlace de salto accesible para lectores de pantalla y teclado */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-brand-600 focus:text-white focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-white text-sm font-semibold"
@@ -35,24 +34,23 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
       </a>
 
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
-        {/* Top Banner Académico Institucional */}
+        {/* Barra superior simple */}
         <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 sm:px-8 border-b border-slate-800">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-brand-400 tracking-wide">IES N.º 11</span>
+              <span className="font-bold text-brand-400">IES N.º 11</span>
               <span className="text-slate-600">•</span>
-              <span className="text-slate-300 text-[11px] sm:text-xs">Exposición Académica — Divulgación de Estadísticas Oficiales de Jujuy</span>
+              <span className="text-slate-300 text-[11px] sm:text-xs">Datos oficiales de Jujuy explicados de forma simple</span>
             </div>
-            <div className="text-[11px] text-slate-400 font-mono">
-              DiPEC • OEDE / SIPA • EIL • MIP 2015
+            <div className="text-[11px] text-slate-400">
+              PBG · OEDE · EIL · MIP
             </div>
           </div>
         </div>
 
-        {/* Barra de Navegación Principal */}
+        {/* Barra de navegación */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo / Brand */}
             <button
               onClick={() => handleNav('inicio')}
               className="flex items-center gap-3 text-left rounded-xl p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
@@ -71,7 +69,6 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
               </div>
             </button>
 
-            {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-1.5" aria-label="Navegación principal">
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -94,7 +91,6 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
               })}
             </nav>
 
-            {/* Botón Móvil */}
             <div className="flex lg:hidden">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -109,22 +105,15 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate }) => {
         </div>
 
         {/* Buscador global */}
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3">
-
           <SearchBar
-
             areas={areasJson as { area_id: string; nombre: string; descripcion: string }[]}
-
             onSelectArea={(id) => onNavigate('detalle', id)}
-
             className="max-w-md"
-
           />
-
         </div>
 
-        {/* Drawer Móvil */}
+        {/* Menú móvil */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1.5 shadow-lg animate-in slide-in-from-top-2 duration-150">
             {navItems.map((item) => {

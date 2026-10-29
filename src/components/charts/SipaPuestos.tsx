@@ -70,7 +70,7 @@ export const SipaPuestos: React.FC<SipaPuestosProps> = ({
         >
           {animated.toLocaleString('es-AR')}
         </span>
-        <span className="text-sm font-bold text-slate-600">puestos asalariados registrados</span>
+        <span className="text-sm font-bold text-slate-600">puestos registrados</span>
       </div>
 
       {serie.length > 1 && (
